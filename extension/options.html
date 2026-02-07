@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Adobe Stock AI Autofill Options</title>
+    <style>
+      body {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        margin: 32px;
+        color: #111827;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-top: 16px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px 12px;
+        margin-top: 6px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+      }
+      textarea {
+        min-height: 120px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        background: #2563eb;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .status {
+        margin-top: 12px;
+        color: #065f46;
+      }
+      .hint {
+        color: #6b7280;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Adobe Stock AI Autofill</h1>
+    <p>
+      Configure your AI provider (OpenAI-compatible endpoint). The extension will
+      use this API to generate titles and categories.
+    </p>
+
+    <label for="apiBaseUrl">API Base URL</label>
+    <input id="apiBaseUrl" type="text" />
+    <div class="hint">Example: https://api.openai.com/v1/chat/completions</div>
+
+    <label for="apiKey">API Key</label>
+    <input id="apiKey" type="password" />
+
+    <label for="model">Model</label>
+    <input id="model" type="text" />
+
+    <label for="categories">Category List (one per line)</label>
+    <textarea id="categories"></textarea>
+
+    <button id="save">Save Settings</button>
+    <div class="status" id="status"></div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

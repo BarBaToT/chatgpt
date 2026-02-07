@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Adobe Stock AI Title & Category Autofill",
+  "version": "0.1.0",
+  "description": "Automatically suggests titles and categories for Adobe Stock uploads using an AI API.",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": [
+    "https://contributor.stock.adobe.com/*",
+    "https://stock.adobe.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://contributor.stock.adobe.com/*",
+        "https://stock.adobe.com/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "options_page": "options.html"
+}
