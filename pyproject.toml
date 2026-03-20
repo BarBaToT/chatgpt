@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "video-loop-studio"
+version = "0.1.0"
+description = "Desktop video looping and upscaling studio powered by PySide6, FFmpeg, and Real-ESRGAN"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "PySide6>=6.7",
+]
+
+[project.scripts]
+video-loop-studio = "video_looper_app.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
