@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCurrentUserId } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
 
 export default async function LoginPage() {
-  if (await getCurrentUserId()) redirect("/dashboard");
+  if (await getCurrentUser()) redirect("/dashboard");
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
