@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  username           String    @unique
+  passwordHash       String
+  creds              Int       @default(500)
+  streetRep          Int       @default(0)
+  bandwidth          Int       @default(100)
+  bandwidthMax       Int       @default(100)
+  hardwareLevel      Int       @default(1)
+  softwareLevel      Int       @default(1)
+  lockedUntil        DateTime?
+  lastBandwidthRegen DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  hackLogs HackLog[]
+
+  @@index([username])
+  @@index([streetRep])
+}
+
+model Action {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  targetName          String
+  description         String
+  energyCost          Int
+  requiredSoftwareReq Int      @default(1)
+  successRateBase     Int
+  rewardCredsMin      Int
+  rewardCredsMax      Int
+  rewardRep           Int
+  lockoutMinutes      Int      @default(5)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+
+  hackLogs HackLog[]
+}
+
+model HackLog {
+  id         String   @id @default(cuid())
+  userId     String
+  actionId   String
+  success    Boolean
+  roll       Int
+  finalRate  Int
+  credsDelta Int      @default(0)
+  repDelta   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action Action @relation(fields: [actionId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+model ShopItem {
+  id               String       @id @default(cuid())
+  slug             String       @unique
+  name             String
+  description      String
+  category         ShopCategory
+  cost             Int
+  bandwidthRestore Int          @default(0)
+  hardwareDelta    Int          @default(0)
+  softwareDelta    Int          @default(0)
+  isActive         Boolean      @default(true)
+}
+
+enum ShopCategory {
+  STIM
+  HARDWARE
+  SOFTWARE
+}
