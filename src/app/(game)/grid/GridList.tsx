@@ -2,6 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Coins, Crosshair, Trophy, Zap } from "lucide-react";
+import {
+  ACCENT_CLASSES,
+  type AccentKey,
+  getActionVisual,
+} from "@/lib/visuals";
 
 export type ActionDTO = {
   id: string;
@@ -95,69 +101,122 @@ export function GridList({
         const broke = bandwidth < action.energyCost;
         const disabled = swLow || broke || isLocked || pendingId !== null;
         const outcome = outcomes[action.id];
+        const visual = getActionVisual(action.slug);
+        const accent = ACCENT_CLASSES[visual.accent as AccentKey];
+        const Icon = visual.icon;
+        const pending = pendingId === action.id;
 
         return (
           <article
             key={action.id}
-            className="group relative overflow-hidden rounded-sm border border-cyan-500/20 bg-black/40 p-5 transition hover:border-cyan-400/60 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)]"
+            className={`group relative flex overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/80 transition ${disabled ? "" : `${accent.hoverBorder} ${accent.hoverShadow}`}`}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-bold tracking-widest text-cyan-300 group-hover:glitch">
-                  {action.targetName}
-                </h3>
-                <p className="mt-1 text-xs text-zinc-500">{action.description}</p>
-              </div>
-              <span className="rounded-sm border border-fuchsia-500/40 px-2 py-0.5 text-[10px] tracking-widest text-fuchsia-300">
+            <div
+              className={`relative hidden w-32 shrink-0 items-center justify-center border-r border-zinc-800 bg-gradient-to-br ${accent.grad} sm:flex`}
+            >
+              <div
+                aria-hidden
+                className="absolute inset-0 opacity-30 mix-blend-overlay"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(0deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 3px)",
+                }}
+              />
+              <Icon
+                size={56}
+                className={`${accent.text} ${accent.glow} transition group-hover:scale-110`}
+                strokeWidth={1.25}
+                aria-hidden
+              />
+              <span
+                className={`absolute left-2 top-2 rounded-sm border ${accent.border} bg-black/60 px-1.5 py-0.5 text-[9px] font-bold tracking-[0.2em] ${accent.text}`}
+              >
+                {visual.tag}
+              </span>
+              <span className="absolute bottom-2 left-2 right-2 text-center text-[9px] tracking-widest text-zinc-500">
                 SW≥{action.requiredSoftwareReq}
               </span>
             </div>
 
-            <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
-              <Cell label="COST" value={`${action.energyCost} BW`} tone="cyan" />
-              <Cell label="ODDS" value={`${action.successRateBase}%`} tone="emerald" />
-              <Cell
-                label="REWARD"
-                value={`${action.rewardCredsMin}-${action.rewardCredsMax}¢`}
-                tone="amber"
-              />
-            </dl>
+            <div className="flex min-w-0 flex-1 flex-col p-5">
+              <header>
+                <h3 className={`text-lg font-bold tracking-widest ${accent.text} group-hover:glitch`}>
+                  {action.targetName}
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-zinc-400">
+                  {action.description}
+                </p>
+              </header>
 
-            <button
-              type="button"
-              onClick={() => execute(action)}
-              disabled={disabled}
-              className="mt-4 w-full rounded-sm border border-cyan-400/50 bg-cyan-500/10 py-2 text-xs font-bold tracking-[0.3em] text-cyan-300 transition hover:bg-cyan-500/20 disabled:cursor-not-allowed disabled:border-zinc-700 disabled:bg-transparent disabled:text-zinc-600"
-            >
-              {pendingId === action.id
-                ? "EXECUTING..."
-                : isLocked
-                  ? "// SYSTEM LOCKOUT"
-                  : swLow
-                    ? `// SW LVL ${action.requiredSoftwareReq} REQUIRED`
-                    : broke
-                      ? "// INSUFFICIENT BANDWIDTH"
-                      : "> EXECUTE"}
-            </button>
+              <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                <StatPill
+                  icon={Zap}
+                  label="COST"
+                  value={`${action.energyCost} BW`}
+                  tone="cyan"
+                />
+                <StatPill
+                  icon={Crosshair}
+                  label="ODDS"
+                  value={`${action.successRateBase}%`}
+                  tone="emerald"
+                />
+                <StatPill
+                  icon={Coins}
+                  label="REWARD"
+                  value={`${action.rewardCredsMin}-${action.rewardCredsMax}¢`}
+                  tone="amber"
+                />
+              </dl>
 
-            {outcome?.kind === "ok" && (
-              <p
-                className={`mt-3 text-xs tracking-wide ${
-                  outcome.success ? "text-emerald-400" : "text-rose-400"
+              <div className="mt-3 flex items-center gap-1 text-[10px] tracking-widest text-fuchsia-300/80">
+                <Trophy size={11} aria-hidden /> +{action.rewardRep} REP ON SUCCESS
+              </div>
+
+              <button
+                type="button"
+                onClick={() => execute(action)}
+                disabled={disabled}
+                className={`mt-4 flex w-full items-center justify-center gap-2 rounded-sm border py-2 text-xs font-bold tracking-[0.3em] transition ${
+                  disabled
+                    ? "cursor-not-allowed border-zinc-800 bg-zinc-900/40 text-zinc-600"
+                    : `${accent.border} bg-gradient-to-r ${accent.grad} ${accent.text} hover:brightness-125`
                 }`}
               >
-                {outcome.success
-                  ? `[OK] roll ${outcome.roll}/${outcome.successRate} → +${outcome.credsGained}¢ / +${outcome.repGained} rep`
-                  : `[FAIL] roll ${outcome.roll}/${outcome.successRate} → traced. lockout until ${
-                      outcome.lockedUntil
-                        ? new Date(outcome.lockedUntil).toLocaleTimeString()
-                        : "—"
-                    }`}
-              </p>
-            )}
-            {outcome?.kind === "err" && (
-              <p className="mt-3 text-xs text-rose-400">[ERR] {outcome.code}</p>
-            )}
+                {pending
+                  ? "EXECUTING..."
+                  : isLocked
+                    ? "// SYSTEM LOCKOUT"
+                    : swLow
+                      ? `// SW LVL ${action.requiredSoftwareReq} REQUIRED`
+                      : broke
+                        ? "// INSUFFICIENT BANDWIDTH"
+                        : "> EXECUTE"}
+              </button>
+
+              {outcome?.kind === "ok" && (
+                <p
+                  className={`mt-3 rounded-sm border px-2 py-1 text-[11px] tracking-wide ${
+                    outcome.success
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                      : "border-rose-500/40 bg-rose-500/10 text-rose-300"
+                  }`}
+                >
+                  {outcome.success
+                    ? `[OK] roll ${outcome.roll}/${outcome.successRate} → +${outcome.credsGained}¢ / +${outcome.repGained} rep`
+                    : `[FAIL] roll ${outcome.roll}/${outcome.successRate} → traced. lockout until ${
+                        outcome.lockedUntil
+                          ? new Date(outcome.lockedUntil).toLocaleTimeString()
+                          : "—"
+                      }`}
+                </p>
+              )}
+              {outcome?.kind === "err" && (
+                <p className="mt-3 rounded-sm border border-rose-500/40 bg-rose-500/10 px-2 py-1 text-[11px] text-rose-300">
+                  [ERR] {outcome.code}
+                </p>
+              )}
+            </div>
           </article>
         );
       })}
@@ -165,11 +224,13 @@ export function GridList({
   );
 }
 
-function Cell({
+function StatPill({
+  icon: Icon,
   label,
   value,
   tone,
 }: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   label: string;
   value: string;
   tone: "cyan" | "emerald" | "amber";
@@ -180,9 +241,11 @@ function Cell({
     amber: "text-amber-300 border-amber-500/30",
   } as const;
   return (
-    <div className={`rounded-sm border bg-black/30 px-2 py-1 ${colors[tone]}`}>
-      <dt className="text-[9px] tracking-widest text-zinc-500">{label}</dt>
-      <dd className="font-bold tabular-nums">{value}</dd>
+    <div className={`rounded-sm border bg-black/30 px-2 py-1.5 ${colors[tone]}`}>
+      <dt className="flex items-center gap-1 text-[9px] tracking-widest text-zinc-500">
+        <Icon size={10} aria-hidden /> {label}
+      </dt>
+      <dd className="mt-0.5 font-bold tabular-nums">{value}</dd>
     </div>
   );
 }

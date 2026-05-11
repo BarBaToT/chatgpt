@@ -17,18 +17,55 @@ const NAV = [
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
 ] as const;
 
-export function Sidebar() {
+type SidebarUser = {
+  username: string;
+  streetRep: number;
+};
+
+function rankFromRep(rep: number) {
+  if (rep >= 200)
+    return { tier: "KINGPIN", color: "text-fuchsia-300", border: "border-fuchsia-500/50" };
+  if (rep >= 100)
+    return { tier: "FIXER", color: "text-rose-300", border: "border-rose-500/50" };
+  if (rep >= 40)
+    return { tier: "OPERATOR", color: "text-amber-300", border: "border-amber-500/50" };
+  if (rep >= 10)
+    return { tier: "RUNNER", color: "text-emerald-300", border: "border-emerald-500/50" };
+  return { tier: "GHOST", color: "text-cyan-300", border: "border-cyan-500/50" };
+}
+
+export function Sidebar({ user }: { user: SidebarUser }) {
   const pathname = usePathname();
+  const rank = rankFromRep(user.streetRep);
+  const initials = user.username.slice(0, 2).toUpperCase();
 
   return (
     <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-cyan-500/20 bg-black/80 backdrop-blur">
-      <div className="border-b border-cyan-500/20 p-5">
-        <h1 className="neon-text text-xl font-bold tracking-[0.25em] text-cyan-400">
+      <div className="border-b border-cyan-500/20 p-4">
+        <h1 className="neon-text text-base font-bold tracking-[0.18em] text-cyan-400">
           NEON_SYNDICATE
         </h1>
-        <p className="mt-1 text-[10px] tracking-[0.3em] text-zinc-500">
+        <p className="mt-1 text-[9px] tracking-[0.3em] text-zinc-500">
           {"// MAINFRAME v0.1 //"}
         </p>
+      </div>
+
+      <div className="border-b border-cyan-500/10 p-4">
+        <div className="flex items-center gap-3">
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-md border ${rank.border} bg-black/60 text-sm font-bold ${rank.color} drop-shadow-[0_0_6px_currentColor]`}
+          >
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs tracking-widest text-zinc-300">
+              @{user.username}
+            </p>
+            <p className={`mt-0.5 text-[10px] tracking-[0.25em] ${rank.color}`}>
+              {rank.tier}
+            </p>
+          </div>
+        </div>
       </div>
 
       <nav className="flex-1 space-y-1 p-3">

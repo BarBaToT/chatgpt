@@ -14,7 +14,7 @@ export default async function GameLayout({
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <div className="flex">
-        <Sidebar />
+        <Sidebar user={{ username: user.username, streetRep: user.streetRep }} />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <Topbar
             user={{
